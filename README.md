@@ -10,7 +10,7 @@ Examples:
 
 ```text
 ping https://xxx.com/login
-tracert -d -w 1 https://123.com/admin
+tracert https://123.com/admin
 nslookup https://abc.cn/dhihsihdi2992
 ```
 
@@ -18,7 +18,7 @@ They execute as:
 
 ```text
 ping xxx.com
-tracert -d -w 1 123.com
+tracert 123.com
 nslookup abc.cn
 ```
 
@@ -41,7 +41,7 @@ framework-dependent `UrlCmd.exe`. No third-party dependency is used.
 3. Open a **new** CMD window.
 
 The installer preserves the current user's existing `CMD` AutoRun setting
-(including Clink) and appends three `doskey` macros. It changes only
+ and appends three `doskey` macros. It changes only
 `HKCU\Software\Microsoft\Command Processor\AutoRun`, so it does not require
 administrator rights and does not affect other users.
 
