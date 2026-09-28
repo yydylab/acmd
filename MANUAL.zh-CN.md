@@ -8,7 +8,7 @@ HTTPS 网址。按下 Enter 后，程序仅提取网址中的主机名，并调�
 
 ```cmd
 ping https://github.com/chrisant996/clink
-tracert -d -w 1 https://123.com/admin
+tracert https://123.com/admin
 nslookup https://abc.cn/dhihsihdi2992
 ```
 
@@ -16,7 +16,7 @@ nslookup https://abc.cn/dhihsihdi2992
 
 ```cmd
 ping github.com
-tracert -d -w 1 123.com
+tracert 123.com
 nslookup abc.cn
 ```
 
