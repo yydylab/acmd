@@ -45,8 +45,7 @@ nslookup abc.cn
 5. 关闭当前 CMD，并重新打开一个 CMD 窗口。
 
 安装仅写入当前用户的
-`HKCU\Software\Microsoft\Command Processor\AutoRun`。已有的 Clink AutoRun
-配置会被保留。
+`HKCU\Software\Microsoft\Command Processor\AutoRun`。
 
 ## 3. 日常使用
 
@@ -78,8 +77,7 @@ ping "https://example.com/path?a=1&b=2"
 UrlCmd.exe uninstall
 ```
 
-然后重新打开 CMD。该操作只移除 UrlCmd 添加的宏，并保留原有的 Clink 或其他
-AutoRun 设置。
+然后重新打开 CMD。该操作只移除 UrlCmd 添加的宏。
 
 ## 5. 构建与测试
 
