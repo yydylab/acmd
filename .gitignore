@@ -1,0 +1,7 @@
+# Build output is published as a GitHub Release asset.
+UrlCmd.exe
+
+# Local editor and test artifacts.
+.vs/
+bin/
+obj/
