@@ -35,7 +35,7 @@ foreach ($case in $cases) {
 }
 
 $banner = (& .\acmd.exe -v) -join "`n"
-foreach ($expected in @('acmd v0.1.3.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
+foreach ($expected in @('acmd v0.1.4.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
     if (-not $banner.Contains($expected)) {
         throw "Version banner does not contain '$expected'."
     }

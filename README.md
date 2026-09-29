@@ -93,6 +93,9 @@ corresponding `route` subnet mask.
 2. Open a CMD window and run `acmd.exe install`.
 3. Open a **new** CMD window.
 
+Run `acmd.exe install` again after replacing an older ACMD executable. It
+refreshes the startup banner and all shortcut macros.
+
 The installer preserves the current user's existing `CMD` AutoRun setting
  and appends three `doskey` macros. It changes only
 `HKCU\Software\Microsoft\Command Processor\AutoRun`, so it does not require
@@ -111,8 +114,8 @@ acmd.exe uninstall
 ## Release
 
 Download `acmd.exe` from the [Releases](../../releases) page, then follow the
-installation steps above. Version `0.1.3` adds the version command and CMD
-startup banner.
+installation steps above. Version `0.1.4` refreshes startup configuration during
+installation and after automatic updates.
 
 ## Scope and behavior
 

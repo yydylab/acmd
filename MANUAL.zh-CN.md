@@ -46,6 +46,8 @@ nslookup abc.cn
 
 安装仅写入当前用户的
 `HKCU\Software\Microsoft\Command Processor\AutoRun`。
+替换旧版 EXE 后，请再次执行 `acmd.exe install`；该命令会刷新启动横幅和全部
+简写宏。
 
 ## 3. 版本与启动信息
 

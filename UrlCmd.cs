@@ -77,19 +77,13 @@ internal static class Acmd
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(CommandProcessorKey))
         {
             string current = key.GetValue("AutoRun", string.Empty, RegistryValueOptions.DoNotExpandEnvironmentNames) as string ?? string.Empty;
-            if (current.IndexOf(BannerMarker, StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                Console.WriteLine("ACMD is already installed for the current user.");
-                return 0;
-            }
-
             current = RemoveLegacyMacroGroup(current);
             current = RemoveMacroGroup(current, MacroMarker);
             string updated = string.IsNullOrWhiteSpace(current) ? macro : current + " & " + macro;
             key.SetValue("AutoRun", updated, RegistryValueKind.String);
         }
 
-        Console.WriteLine("Installed. Open a new CMD window to use ACMD shortcuts.");
+        Console.WriteLine("Installed or updated. Open a new CMD window to use ACMD shortcuts.");
         return 0;
     }
 
@@ -195,6 +189,7 @@ internal static class Acmd
             "@echo off",
             "ping 127.0.0.1 -n 3 > nul",
             "move /y " + QuoteForCmd(downloadedFile) + " " + QuoteForCmd(targetFile) + " > nul",
+            QuoteForCmd(targetFile) + " install > nul",
             "start \"\" \"%ComSpec%\" /k",
             "del \"%~f0\""
         });
