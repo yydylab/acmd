@@ -169,8 +169,7 @@ internal static class Acmd
             if (string.Equals(arguments[0], "a", StringComparison.OrdinalIgnoreCase))
                 return new[] { "/all" }.Concat(arguments.Skip(1)).ToArray();
 
-            if (string.Equals(arguments[0], "-f", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(arguments[0], "/f", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(arguments[0], "f", StringComparison.OrdinalIgnoreCase))
             {
                 return new[] { "/flushdns" }.Concat(arguments.Skip(1)).ToArray();
             }
