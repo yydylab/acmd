@@ -55,7 +55,7 @@ to its host name automatically.
 | `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
 | `g` | `getmac` | `g /v` | Pass any native `getmac` option directly. |
 | `ne` | `netsh` | `ne interface ip show config` | Pass any native `netsh` context and command directly. |
-| `r` | `route` | `r print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
 | `nb` | `nbtstat` | `nb -n` | Pass any native `nbtstat` option directly. |
 
 Route add/delete uses the format `r <a|d> <destination> <CIDR prefix>

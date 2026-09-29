@@ -64,7 +64,7 @@ nslookup abc.cn
 | `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
 | `g` | `getmac` | `g /v` | 原生 `getmac` 参数可直接传入。 |
 | `ne` | `netsh` | `ne interface ip show config` | 原生 `netsh` 上下文与参数可直接传入。 |
-| `r` | `route` | `r print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
 | `nb` | `nbtstat` | `nb -n` | 原生 `nbtstat` 参数可直接传入。 |
 
 路由添加和删除的格式为

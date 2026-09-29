@@ -211,11 +211,13 @@ internal static class Acmd
 
         if (string.Equals(command, "route", StringComparison.OrdinalIgnoreCase))
         {
-            if (arguments.Length >= 2
-                && string.Equals(arguments[0], "p", StringComparison.OrdinalIgnoreCase)
-                && (arguments[1] == "4" || arguments[1] == "6"))
+            if (arguments.Length >= 1 && string.Equals(arguments[0], "p", StringComparison.OrdinalIgnoreCase))
             {
-                return new[] { "print", "-" + arguments[1] }.Concat(arguments.Skip(2)).ToArray();
+                if (arguments.Length == 1)
+                    return new[] { "print" };
+
+                if (arguments[1] == "4" || arguments[1] == "6")
+                    return new[] { "print", "-" + arguments[1] }.Concat(arguments.Skip(2)).ToArray();
             }
 
             if (arguments.Length >= 4

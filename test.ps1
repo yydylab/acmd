@@ -14,6 +14,7 @@ $cases = @(
     @{ Input = @('tracert', 'wd', 'https://example.com/admin'); Expected = 'tracert -w 1 -d example.com' },
     @{ Input = @('ipconfig', 'a'); Expected = 'ipconfig /all' },
     @{ Input = @('ipconfig', 'f'); Expected = 'ipconfig /flushdns' },
+    @{ Input = @('route', 'p'); Expected = 'route print' },
     @{ Input = @('route', 'p', '4'); Expected = 'route print -4' },
     @{ Input = @('route', 'p', '6'); Expected = 'route print -6' },
     @{ Input = @('route', 'a', '223.5.5.5', '32', '192.168.1.1'); Expected = 'route add 223.5.5.5 mask 255.255.255.255 192.168.1.1' },
