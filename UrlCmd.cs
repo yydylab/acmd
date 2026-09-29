@@ -310,18 +310,25 @@ internal static class Acmd
 
         int segmentStart = current.LastIndexOf(" & ", markerIndex, StringComparison.Ordinal);
         segmentStart = segmentStart < 0 ? 0 : segmentStart + 3;
-        int segmentEnd = current.IndexOf(" & ", markerIndex);
-        if (segmentEnd < 0)
-            segmentEnd = current.Length;
 
         if (string.Equals(marker, MacroMarker, StringComparison.OrdinalIgnoreCase))
         {
-            string executable = Process.GetCurrentProcess().MainModule.FileName;
-            string macro = BuildMacro(executable);
-            segmentEnd = markerIndex + macro.Length;
+            int lastMacro = current.IndexOf("doskey nb=", markerIndex, StringComparison.OrdinalIgnoreCase);
+            int segmentEnd = lastMacro < 0 ? -1 : current.IndexOf(" & ", lastMacro);
+            if (segmentEnd < 0)
+                segmentEnd = current.Length;
+
+            return RemoveMacroSegment(current, segmentStart, segmentEnd);
         }
 
-        string updated = current.Remove(segmentStart, segmentEnd - segmentStart).Trim();
+        int nextSegment = current.IndexOf(" & ", markerIndex);
+        int end = nextSegment < 0 ? current.Length : nextSegment;
+        return RemoveMacroSegment(current, segmentStart, end);
+    }
+
+    private static string RemoveMacroSegment(string current, int start, int end)
+    {
+        string updated = current.Remove(start, end - start).Trim();
         return updated.EndsWith("&", StringComparison.Ordinal)
             ? updated.Substring(0, updated.Length - 1).TrimEnd()
             : updated;
