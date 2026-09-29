@@ -9,11 +9,21 @@ $cases = @(
     @{ Input = @('ping', 'https://[2001:db8::1]/health'); Expected = 'ping [2001:db8::1]' },
     @{ Input = @('ping', 'example.com'); Expected = 'ping example.com' },
     @{ Input = @('pathping', 'https://example.com/trace'); Expected = 'pathping example.com' },
+    @{ Input = @('ping', 't', 'https://example.com/status'); Expected = 'ping -t example.com' },
+    @{ Input = @('tracert', 'dw', 'https://example.com/admin'); Expected = 'tracert -d -w 1 example.com' },
+    @{ Input = @('tracert', 'wd', 'https://example.com/admin'); Expected = 'tracert -w 1 -d example.com' },
+    @{ Input = @('ipconfig', 'a'); Expected = 'ipconfig /all' },
     @{ Input = @('ipconfig', '-f'); Expected = 'ipconfig /flushdns' },
     @{ Input = @('ipconfig', '/f'); Expected = 'ipconfig /flushdns' },
     @{ Input = @('route', 'p', '4'); Expected = 'route print -4' },
     @{ Input = @('route', 'p', '6'); Expected = 'route print -6' },
-    @{ Input = @('curl', 'https://example.com/path'); Expected = 'curl https://example.com/path' }
+    @{ Input = @('route', 'a', '223.5.5.5', '32', '192.168.1.1'); Expected = 'route add 223.5.5.5 mask 255.255.255.255 192.168.1.1' },
+    @{ Input = @('route', 'd', '10.0.0.0', '24', '192.168.1.1'); Expected = 'route delete 10.0.0.0 mask 255.255.255.0 192.168.1.1' },
+    @{ Input = @('curl', 'c'); Expected = 'curl cip.cc' },
+    @{ Input = @('curl', 'i'); Expected = 'curl ipinfo.io' },
+    @{ Input = @('curl', 'https://example.com/path'); Expected = 'curl https://example.com/path' },
+    @{ Input = @('mstsc', '192.168.1.1'); Expected = 'mstsc /v:192.168.1.1:3389' },
+    @{ Input = @('mstsc', '192.168.1.1:53389'); Expected = 'mstsc /v:192.168.1.1:53389' }
 )
 
 foreach ($case in $cases) {

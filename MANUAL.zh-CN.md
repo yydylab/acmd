@@ -49,27 +49,27 @@ nslookup abc.cn
 
 ## 3. 命令简写
 
-| 简写 | 实际命令 | 简写 | 实际命令 |
+| 简写 | 实际命令 | 案例 | 拓展 |
 | --- | --- | --- | --- |
-| `p` | `ping` | `t` | `tracert` |
-| `n` | `nslookup` | `a` | `arp` |
-| `s` | `ssh` | `c` | `curl` |
-| `f` | `ftp` | `m` | `mstsc` |
-| `pa` | `pathping` | `te` | `telnet` |
-| `i` | `ipconfig` | `g` | `getmac` |
-| `ne` | `netsh` | `r` | `route` |
-| `nb` | `nbtstat` |  |  |
+| `p` | `ping` | `p www.baidu.com` | `p t baidu.com` -> `ping -t baidu.com`<br>`p https://github.com/user/repo` -> `ping github.com` |
+| `t` | `tracert` | `t www.baidu.com` | `t dw baidu.com` -> `tracert -d -w 1 baidu.com`<br>`t wd baidu.com` -> `tracert -w 1 -d baidu.com` |
+| `n` | `nslookup` | `n www.baidu.com` | `n https://example.com/path` -> `nslookup example.com` |
+| `a` | `arp` | `a -a` | 原生 `arp` 参数可直接传入。 |
+| `s` | `ssh` | `s user@192.168.1.1` | 例如：`s -p 2222 user@host`。 |
+| `c` | `curl` | `c https://example.com` | `c c` -> `curl cip.cc`<br>`c i` -> `curl ipinfo.io` |
+| `f` | `ftp` | `f ftp.example.com` | 原生 `ftp` 参数可直接传入。 |
+| `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
+| `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
+| `te` | `telnet` | `te 192.168.1.1 23` | 需先启用 Windows Telnet Client 可选功能。 |
+| `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i -f` 或 `i /f` -> `ipconfig /flushdns` |
+| `g` | `getmac` | `g /v` | 原生 `getmac` 参数可直接传入。 |
+| `ne` | `netsh` | `ne interface ip show config` | 原生 `netsh` 上下文与参数可直接传入。 |
+| `r` | `route` | `r print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `nb` | `nbtstat` | `nb -n` | 原生 `nbtstat` 参数可直接传入。 |
 
-特殊简写：
-
-```cmd
-i -f
-i /f
-r p 4
-```
-
-分别执行 `ipconfig /flushdns`、`ipconfig /flushdns` 和 `route print -4`。
-`r p 6` 对应执行 `route print -6`。
+路由添加和删除的格式为
+`r <a|d> <目标地址> <CIDR 前缀> <网关>`。ACMD 会将合法 IPv4 前缀（`0` 至
+`32`）转换为 `route` 所需的子网掩码。
 
 ## 4. 日常使用
 

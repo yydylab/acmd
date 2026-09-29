@@ -164,26 +164,116 @@ internal static class Acmd
 
     private static string[] TransformArguments(string command, string[] arguments)
     {
-        if (string.Equals(command, "ipconfig", StringComparison.OrdinalIgnoreCase)
-            && arguments.Length > 0
-            && (string.Equals(arguments[0], "-f", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(arguments[0], "/f", StringComparison.OrdinalIgnoreCase)))
+        if (string.Equals(command, "ipconfig", StringComparison.OrdinalIgnoreCase) && arguments.Length > 0)
         {
-            return new[] { "/flushdns" }.Concat(arguments.Skip(1)).ToArray();
+            if (string.Equals(arguments[0], "a", StringComparison.OrdinalIgnoreCase))
+                return new[] { "/all" }.Concat(arguments.Skip(1)).ToArray();
+
+            if (string.Equals(arguments[0], "-f", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(arguments[0], "/f", StringComparison.OrdinalIgnoreCase))
+            {
+                return new[] { "/flushdns" }.Concat(arguments.Skip(1)).ToArray();
+            }
         }
 
-        if (string.Equals(command, "route", StringComparison.OrdinalIgnoreCase)
-            && arguments.Length >= 2
-            && string.Equals(arguments[0], "p", StringComparison.OrdinalIgnoreCase)
-            && (arguments[1] == "4" || arguments[1] == "6"))
+        if (string.Equals(command, "ping", StringComparison.OrdinalIgnoreCase)
+            && arguments.Length > 0
+            && string.Equals(arguments[0], "t", StringComparison.OrdinalIgnoreCase))
         {
-            return new[] { "print", "-" + arguments[1] }.Concat(arguments.Skip(2)).ToArray();
+            return new[] { "-t" }.Concat(arguments.Skip(1).Select(NormalizeArgument)).ToArray();
+        }
+
+        if (string.Equals(command, "tracert", StringComparison.OrdinalIgnoreCase)
+            && arguments.Length > 0)
+        {
+            if (string.Equals(arguments[0], "dw", StringComparison.OrdinalIgnoreCase))
+                return new[] { "-d", "-w", "1" }.Concat(arguments.Skip(1).Select(NormalizeArgument)).ToArray();
+
+            if (string.Equals(arguments[0], "wd", StringComparison.OrdinalIgnoreCase))
+                return new[] { "-w", "1", "-d" }.Concat(arguments.Skip(1).Select(NormalizeArgument)).ToArray();
+        }
+
+        if (string.Equals(command, "curl", StringComparison.OrdinalIgnoreCase) && arguments.Length > 0)
+        {
+            if (string.Equals(arguments[0], "c", StringComparison.OrdinalIgnoreCase))
+                return new[] { "cip.cc" }.Concat(arguments.Skip(1)).ToArray();
+
+            if (string.Equals(arguments[0], "i", StringComparison.OrdinalIgnoreCase))
+                return new[] { "ipinfo.io" }.Concat(arguments.Skip(1)).ToArray();
+        }
+
+        if (string.Equals(command, "mstsc", StringComparison.OrdinalIgnoreCase)
+            && arguments.Length > 0
+            && IsIpv4Endpoint(arguments[0]))
+        {
+            string endpoint = arguments[0].IndexOf(':') < 0 ? arguments[0] + ":3389" : arguments[0];
+            return new[] { "/v:" + endpoint }.Concat(arguments.Skip(1)).ToArray();
+        }
+
+        if (string.Equals(command, "route", StringComparison.OrdinalIgnoreCase))
+        {
+            if (arguments.Length >= 2
+                && string.Equals(arguments[0], "p", StringComparison.OrdinalIgnoreCase)
+                && (arguments[1] == "4" || arguments[1] == "6"))
+            {
+                return new[] { "print", "-" + arguments[1] }.Concat(arguments.Skip(2)).ToArray();
+            }
+
+            if (arguments.Length >= 4
+                && (string.Equals(arguments[0], "a", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(arguments[0], "d", StringComparison.OrdinalIgnoreCase)))
+            {
+                string mask;
+                if (TryGetIpv4Mask(arguments[2], out mask))
+                {
+                    string action = string.Equals(arguments[0], "a", StringComparison.OrdinalIgnoreCase)
+                        ? "add"
+                        : "delete";
+                    return new[] { action, arguments[1], "mask", mask, arguments[3] }
+                        .Concat(arguments.Skip(4))
+                        .ToArray();
+                }
+            }
         }
 
         if (ShouldNormalizeUrls(command))
             return arguments.Select(NormalizeArgument).ToArray();
 
         return arguments;
+    }
+
+    private static bool IsIpv4Endpoint(string value)
+    {
+        string host = value;
+        int portIndex = value.IndexOf(':');
+        if (portIndex >= 0)
+        {
+            host = value.Substring(0, portIndex);
+            int port;
+            if (!int.TryParse(value.Substring(portIndex + 1), out port) || port < 1 || port > 65535)
+                return false;
+        }
+
+        IPAddress address;
+        return IPAddress.TryParse(host, out address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork;
+    }
+
+    private static bool TryGetIpv4Mask(string prefixText, out string mask)
+    {
+        mask = null;
+        int prefix;
+        if (!int.TryParse(prefixText, out prefix) || prefix < 0 || prefix > 32)
+            return false;
+
+        uint value = prefix == 0 ? 0u : uint.MaxValue << (32 - prefix);
+        mask = string.Join(".", new[]
+        {
+            (value >> 24) & 255,
+            (value >> 16) & 255,
+            (value >> 8) & 255,
+            value & 255
+        });
+        return true;
     }
 
     private static bool ShouldNormalizeUrls(string command)

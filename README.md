@@ -34,28 +34,33 @@ Run the following from PowerShell in this directory:
 The build uses the built-in .NET Framework 4 C# compiler and produces a single
 framework-dependent `acmd.exe`. No third-party dependency is used.
 
-## Shortcuts
+## Complete Shortcut Reference
 
-| Shortcut | Command |
-| --- | --- |
-| `p` | `ping` |
-| `t` | `tracert` |
-| `n` | `nslookup` |
-| `a` | `arp` |
-| `s` | `ssh` |
-| `c` | `curl` |
-| `f` | `ftp` |
-| `m` | `mstsc` |
-| `pa` | `pathping` |
-| `te` | `telnet` |
-| `i` | `ipconfig` |
-| `g` | `getmac` |
-| `ne` | `netsh` |
-| `r` | `route` |
-| `nb` | `nbtstat` |
+Open a **new** CMD window after installation, then use the following shortcuts.
+For `ping`, `tracert`, `nslookup`, and `pathping`, an HTTP/HTTPS URL is reduced
+to its host name automatically.
 
-Additional forms: `i -f` and `i /f` run `ipconfig /flushdns`; `r p 4` runs
-`route print -4` (and `r p 6` runs `route print -6`).
+| Shortcut | Actual command | Example | Extensions |
+| --- | --- | --- | --- |
+| `p` | `ping` | `p www.baidu.com` | `p t baidu.com` -> `ping -t baidu.com`<br>`p https://github.com/user/repo` -> `ping github.com` |
+| `t` | `tracert` | `t www.baidu.com` | `t dw baidu.com` -> `tracert -d -w 1 baidu.com`<br>`t wd baidu.com` -> `tracert -w 1 -d baidu.com` |
+| `n` | `nslookup` | `n www.baidu.com` | `n https://example.com/path` -> `nslookup example.com` |
+| `a` | `arp` | `a -a` | Pass any native `arp` option directly. |
+| `s` | `ssh` | `s user@192.168.1.1` | Pass SSH options directly, for example `s -p 2222 user@host`. |
+| `c` | `curl` | `c https://example.com` | `c c` -> `curl cip.cc`<br>`c i` -> `curl ipinfo.io` |
+| `f` | `ftp` | `f ftp.example.com` | Pass any native `ftp` option directly. |
+| `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
+| `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
+| `te` | `telnet` | `te 192.168.1.1 23` | Requires the Windows Telnet Client optional feature. |
+| `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i -f` or `i /f` -> `ipconfig /flushdns` |
+| `g` | `getmac` | `g /v` | Pass any native `getmac` option directly. |
+| `ne` | `netsh` | `ne interface ip show config` | Pass any native `netsh` context and command directly. |
+| `r` | `route` | `r print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `nb` | `nbtstat` | `nb -n` | Pass any native `nbtstat` option directly. |
+
+Route add/delete uses the format `r <a|d> <destination> <CIDR prefix>
+<gateway>`. ACMD converts a valid IPv4 prefix from `0` through `32` into the
+corresponding `route` subnet mask.
 
 ## Install
 
@@ -81,7 +86,8 @@ acmd.exe uninstall
 ## Release
 
 Download `acmd.exe` from the [Releases](../../releases) page, then follow the
-installation steps above. Version `0.1.1` is the first ACMD release.
+installation steps above. Version `0.1.2` includes the complete shortcut
+reference and command extensions.
 
 ## Scope and behavior
 
