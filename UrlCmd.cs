@@ -1,16 +1,22 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Web.Script.Serialization;
 using Microsoft.Win32;
 
 internal static class Acmd
 {
     private const string CommandProcessorKey = @"Software\Microsoft\Command Processor";
     private const string MacroMarker = "acmd.exe\" run ping $*";
+    private const string BannerMarker = "acmd.exe\" banner";
     private const string LegacyMacroMarker = "doskey ping=\"";
+    private const string ProjectUrl = "https://github.com/yydylab/acmd";
+    private const string LatestReleaseApi = "https://api.github.com/repos/yydylab/acmd/releases/latest";
 
     private static readonly IDictionary<string, string> Aliases =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -42,6 +48,13 @@ internal static class Acmd
 
         switch (args[0].ToLowerInvariant())
         {
+            case "-v":
+            case "--version":
+            case "banner":
+                PrintBanner();
+                return 0;
+            case "update":
+                return Update();
             case "install":
                 return Install();
             case "uninstall":
@@ -64,19 +77,135 @@ internal static class Acmd
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(CommandProcessorKey))
         {
             string current = key.GetValue("AutoRun", string.Empty, RegistryValueOptions.DoNotExpandEnvironmentNames) as string ?? string.Empty;
-            if (current.IndexOf(MacroMarker, StringComparison.OrdinalIgnoreCase) >= 0)
+            if (current.IndexOf(BannerMarker, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 Console.WriteLine("ACMD is already installed for the current user.");
                 return 0;
             }
 
             current = RemoveLegacyMacroGroup(current);
+            current = RemoveMacroGroup(current, MacroMarker);
             string updated = string.IsNullOrWhiteSpace(current) ? macro : current + " & " + macro;
             key.SetValue("AutoRun", updated, RegistryValueKind.String);
         }
 
         Console.WriteLine("Installed. Open a new CMD window to use ACMD shortcuts.");
         return 0;
+    }
+
+    private static int Update()
+    {
+        try
+        {
+            Console.WriteLine("Checking for updates...");
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
+            ReleaseInfo release = GetLatestRelease();
+            Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            if (release.Version <= currentVersion)
+            {
+                Console.WriteLine("Installed v{0}; latest GitHub Release is v{1}. No update is required.",
+                    currentVersion,
+                    release.Version);
+                return 0;
+            }
+
+            Console.WriteLine("Downloading ACMD v{0}...", release.Version);
+            string downloadedFile = Path.Combine(Path.GetTempPath(), "acmd-" + Guid.NewGuid().ToString("N") + ".exe");
+            using (var client = new WebClient())
+            {
+                client.Headers[HttpRequestHeader.UserAgent] = "acmd-updater";
+                client.DownloadFile(release.DownloadUrl, downloadedFile);
+            }
+
+            Version downloadedVersion = AssemblyName.GetAssemblyName(downloadedFile).Version;
+            if (downloadedVersion != release.Version)
+            {
+                File.Delete(downloadedFile);
+                throw new InvalidOperationException("The downloaded ACMD version does not match the GitHub Release.");
+            }
+
+            StartUpdater(downloadedFile, Process.GetCurrentProcess().MainModule.FileName);
+            Console.WriteLine("Update scheduled. Approve the UAC prompt to complete the upgrade.");
+            return 0;
+        }
+        catch (Exception error)
+        {
+            Console.Error.WriteLine("Update failed: {0}", error.Message);
+            return 1;
+        }
+    }
+
+    private static ReleaseInfo GetLatestRelease()
+    {
+        string json;
+        using (var client = new WebClient())
+        {
+            client.Headers[HttpRequestHeader.UserAgent] = "acmd-updater";
+            json = client.DownloadString(LatestReleaseApi);
+        }
+
+        var serializer = new JavaScriptSerializer();
+        var release = serializer.DeserializeObject(json) as Dictionary<string, object>;
+        if (release == null || !release.ContainsKey("tag_name") || !release.ContainsKey("assets"))
+            throw new InvalidOperationException("GitHub returned an invalid release response.");
+
+        string downloadUrl = null;
+        foreach (object item in (IEnumerable)release["assets"])
+        {
+            var asset = item as Dictionary<string, object>;
+            if (asset != null
+                && string.Equals(asset["name"] as string, "acmd.exe", StringComparison.OrdinalIgnoreCase))
+            {
+                downloadUrl = asset["browser_download_url"] as string;
+                break;
+            }
+        }
+
+        if (string.IsNullOrEmpty(downloadUrl))
+            throw new InvalidOperationException("The latest GitHub Release does not include acmd.exe.");
+
+        return new ReleaseInfo
+        {
+            Version = ParseReleaseVersion(release["tag_name"] as string),
+            DownloadUrl = downloadUrl
+        };
+    }
+
+    private static Version ParseReleaseVersion(string tagName)
+    {
+        string[] parts = (tagName ?? string.Empty).Trim().TrimStart('v', 'V').Split('.');
+        if (parts.Length < 1 || parts.Length > 4 || parts.Any(part => string.IsNullOrEmpty(part)))
+            throw new InvalidOperationException("The latest GitHub Release tag is not a version number.");
+
+        while (parts.Length < 4)
+            parts = parts.Concat(new[] { "0" }).ToArray();
+
+        Version version;
+        if (!Version.TryParse(string.Join(".", parts), out version))
+            throw new InvalidOperationException("The latest GitHub Release tag is not a version number.");
+        return version;
+    }
+
+    private static void StartUpdater(string downloadedFile, string targetFile)
+    {
+        string script = Path.Combine(Path.GetTempPath(), "acmd-update-" + Guid.NewGuid().ToString("N") + ".cmd");
+        File.WriteAllLines(script, new[]
+        {
+            "@echo off",
+            "ping 127.0.0.1 -n 3 > nul",
+            "move /y " + QuoteForCmd(downloadedFile) + " " + QuoteForCmd(targetFile) + " > nul",
+            "start \"\" \"%ComSpec%\" /k",
+            "del \"%~f0\""
+        });
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = Environment.GetEnvironmentVariable("ComSpec"),
+            Arguments = "/c " + QuoteForProcess(script),
+            UseShellExecute = true,
+            Verb = "runas"
+        });
     }
 
     private static int Uninstall()
@@ -106,7 +235,7 @@ internal static class Acmd
     private static string BuildMacro(string executable)
     {
         string quotedExecutable = QuoteForCmd(executable);
-        return string.Join(" & ", Aliases.Select(alias =>
+        return quotedExecutable + " banner & " + string.Join(" & ", Aliases.Select(alias =>
             "doskey " + alias.Key + "=" + quotedExecutable + " run " + alias.Value + " $*"));
     }
 
@@ -313,6 +442,13 @@ internal static class Acmd
 
         if (string.Equals(marker, MacroMarker, StringComparison.OrdinalIgnoreCase))
         {
+            int bannerIndex = current.LastIndexOf(BannerMarker, markerIndex, StringComparison.OrdinalIgnoreCase);
+            if (bannerIndex >= 0)
+            {
+                segmentStart = current.LastIndexOf(" & ", bannerIndex, StringComparison.Ordinal);
+                segmentStart = segmentStart < 0 ? 0 : segmentStart + 3;
+            }
+
             int lastMacro = current.IndexOf("doskey nb=", markerIndex, StringComparison.OrdinalIgnoreCase);
             int segmentEnd = lastMacro < 0 ? -1 : current.IndexOf(" & ", lastMacro);
             if (segmentEnd < 0)
@@ -411,8 +547,24 @@ internal static class Acmd
     private static void PrintUsage()
     {
         Console.WriteLine("ACMD (Advanced CMD) - CMD network command shortcuts.");
+        Console.WriteLine("  acmd.exe -v");
+        Console.WriteLine("  acmd.exe update");
         Console.WriteLine("  acmd.exe install");
         Console.WriteLine("  acmd.exe uninstall");
         Console.WriteLine("  acmd.exe normalize ping https://example.com/path");
+    }
+
+    private static void PrintBanner()
+    {
+        Version version = Assembly.GetExecutingAssembly().GetName().Version;
+        Console.WriteLine("acmd v{0}", version);
+        Console.WriteLine("Copyright (c) 2026 yydylab");
+        Console.WriteLine(ProjectUrl);
+    }
+
+    private sealed class ReleaseInfo
+    {
+        public Version Version { get; set; }
+        public string DownloadUrl { get; set; }
     }
 }

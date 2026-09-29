@@ -34,6 +34,31 @@ Run the following from PowerShell in this directory:
 The build uses the built-in .NET Framework 4 C# compiler and produces a single
 framework-dependent `acmd.exe`. No third-party dependency is used.
 
+## Version And Startup Banner
+
+Run the following command to show the installed ACMD version and project URL:
+
+```cmd
+acmd -v
+```
+
+After `acmd install`, every newly opened CMD window also displays this
+information before the prompt.
+
+## Update
+
+Run this command to compare the installed version with the latest GitHub
+Release:
+
+```cmd
+acmd update
+```
+
+When a newer `acmd.exe` is available, ACMD downloads and validates it, then
+requests one UAC approval to replace the executable. After the replacement, it
+opens a new CMD window automatically. The updater needs administrator approval
+when ACMD is installed in `C:\Windows\System32`.
+
 ## Complete Shortcut Reference
 
 Open a **new** CMD window after installation, then use the following shortcuts.
@@ -86,8 +111,8 @@ acmd.exe uninstall
 ## Release
 
 Download `acmd.exe` from the [Releases](../../releases) page, then follow the
-installation steps above. Version `0.1.2` includes the complete shortcut
-reference and command extensions.
+installation steps above. Version `0.1.3` adds the version command and CMD
+startup banner.
 
 ## Scope and behavior
 

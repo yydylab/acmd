@@ -47,7 +47,29 @@ nslookup abc.cn
 安装仅写入当前用户的
 `HKCU\Software\Microsoft\Command Processor\AutoRun`。
 
-## 3. 命令简写
+## 3. 版本与启动信息
+
+在 CMD 中执行以下命令可显示 ACMD 当前版本、版权和项目地址：
+
+```cmd
+acmd -v
+```
+
+执行 `acmd install` 后，每次新开 CMD 窗口都会在提示符前自动显示这组信息。
+
+## 4. 自动更新
+
+执行以下命令可比对本机版本和 GitHub 最新 Release：
+
+```cmd
+acmd update
+```
+
+检测到新版本时，ACMD 会下载并校验最新 `acmd.exe`，随后请求一次 UAC 管理员授权以
+替换程序。替换完成后会自动打开新的 CMD 窗口。程序安装在
+`C:\Windows\System32` 时，升级必须通过该 UAC 授权。
+
+## 5. 命令简写
 
 | 简写 | 实际命令 | 案例 | 拓展 |
 | --- | --- | --- | --- |
@@ -71,7 +93,7 @@ nslookup abc.cn
 `r <a|d> <目标地址> <CIDR 前缀> <网关>`。ACMD 会将合法 IPv4 前缀（`0` 至
 `32`）转换为 `route` 所需的子网掩码。
 
-## 4. 日常使用
+## 6. 日常使用
 
 直接输入网址，不要使用 Markdown 反引号：
 
@@ -93,7 +115,7 @@ CMD 不将反引号视为引号字符，后者会导致 DNS 查询失败。
 ping "https://example.com/path?a=1&b=2"
 ```
 
-## 5. 卸载
+## 7. 卸载
 
 执行：
 
@@ -103,7 +125,7 @@ acmd.exe uninstall
 
 然后重新打开 CMD。该操作只移除 ACMD 添加的宏。
 
-## 6. 构建与测试
+## 8. 构建与测试
 
 在 Windows PowerShell 中运行：
 
@@ -114,7 +136,7 @@ acmd.exe uninstall
 
 项目使用 Windows 自带的 .NET Framework C# 编译器，不依赖第三方包。
 
-## 7. 注意事项
+## 9. 注意事项
 
 - 仅转换以 `http://` 或 `https://` 开头的参数。
 - `ping`、`tracert`、`nslookup`、`pathping` 会提取 HTTP/HTTPS URL 的主机名；
