@@ -1,5 +1,6 @@
 # Build output is published as a GitHub Release asset.
 UrlCmd.exe
+acmd.exe
 
 # Local editor and test artifacts.
 .vs/

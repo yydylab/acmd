@@ -5,9 +5,9 @@ if (-not (Test-Path $compiler)) {
     throw "The .NET Framework C# compiler was not found: $compiler"
 }
 
-& $compiler /nologo /target:exe /platform:anycpu /optimize+ /out:UrlCmd.exe UrlCmd.cs
+& $compiler /nologo /target:exe /platform:anycpu /optimize+ /out:acmd.exe AssemblyInfo.cs UrlCmd.cs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-Write-Host "Built $((Resolve-Path .\UrlCmd.exe).Path)"
+Write-Host "Built $((Resolve-Path .\acmd.exe).Path)"

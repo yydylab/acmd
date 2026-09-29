@@ -6,10 +6,31 @@ using System.Linq;
 using System.Net;
 using Microsoft.Win32;
 
-internal static class UrlCmd
+internal static class Acmd
 {
     private const string CommandProcessorKey = @"Software\Microsoft\Command Processor";
-    private const string MacroMarker = "UrlCmd.exe\" run ping $*";
+    private const string MacroMarker = "acmd.exe\" run ping $*";
+    private const string LegacyMacroMarker = "doskey ping=\"";
+
+    private static readonly IDictionary<string, string> Aliases =
+        new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "p", "ping" },
+            { "t", "tracert" },
+            { "n", "nslookup" },
+            { "a", "arp" },
+            { "s", "ssh" },
+            { "c", "curl" },
+            { "f", "ftp" },
+            { "m", "mstsc" },
+            { "pa", "pathping" },
+            { "te", "telnet" },
+            { "i", "ipconfig" },
+            { "g", "getmac" },
+            { "ne", "netsh" },
+            { "r", "route" },
+            { "nb", "nbtstat" }
+        };
 
     private static int Main(string[] args)
     {
@@ -45,39 +66,32 @@ internal static class UrlCmd
             string current = key.GetValue("AutoRun", string.Empty, RegistryValueOptions.DoNotExpandEnvironmentNames) as string ?? string.Empty;
             if (current.IndexOf(MacroMarker, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                Console.WriteLine("UrlCmd is already installed for the current user.");
+                Console.WriteLine("ACMD is already installed for the current user.");
                 return 0;
             }
 
+            current = RemoveLegacyMacroGroup(current);
             string updated = string.IsNullOrWhiteSpace(current) ? macro : current + " & " + macro;
             key.SetValue("AutoRun", updated, RegistryValueKind.String);
         }
 
-        Console.WriteLine("Installed. Open a new CMD window to use URL cleanup.");
+        Console.WriteLine("Installed. Open a new CMD window to use ACMD shortcuts.");
         return 0;
     }
 
     private static int Uninstall()
     {
-        string macro = BuildMacro(Process.GetCurrentProcess().MainModule.FileName);
         using (RegistryKey key = Registry.CurrentUser.CreateSubKey(CommandProcessorKey))
         {
             string current = key.GetValue("AutoRun", string.Empty, RegistryValueOptions.DoNotExpandEnvironmentNames) as string ?? string.Empty;
-            int markerIndex = current.IndexOf(macro, StringComparison.OrdinalIgnoreCase);
+            int markerIndex = current.IndexOf(MacroMarker, StringComparison.OrdinalIgnoreCase);
             if (markerIndex < 0)
             {
-                Console.WriteLine("UrlCmd is not installed for the current user.");
+                Console.WriteLine("ACMD is not installed for the current user.");
                 return 0;
             }
 
-            int segmentStart = current.LastIndexOf(" & ", markerIndex, StringComparison.Ordinal);
-            segmentStart = segmentStart < 0 ? 0 : segmentStart + 3;
-            int segmentEnd = markerIndex + macro.Length;
-
-            string updated = current.Remove(segmentStart, segmentEnd - segmentStart);
-            updated = updated.Trim();
-            if (updated.EndsWith("&", StringComparison.Ordinal))
-                updated = updated.Substring(0, updated.Length - 1).TrimEnd();
+            string updated = RemoveMacroGroup(current, MacroMarker);
 
             if (string.IsNullOrEmpty(updated))
                 key.DeleteValue("AutoRun", false);
@@ -85,32 +99,28 @@ internal static class UrlCmd
                 key.SetValue("AutoRun", updated, RegistryValueKind.String);
         }
 
-        Console.WriteLine("Uninstalled. New CMD windows will no longer load UrlCmd macros.");
+        Console.WriteLine("Uninstalled. New CMD windows will no longer load ACMD macros.");
         return 0;
     }
 
     private static string BuildMacro(string executable)
     {
         string quotedExecutable = QuoteForCmd(executable);
-        return string.Join(" & ", new[]
-        {
-            "doskey ping=" + quotedExecutable + " run ping $*",
-            "doskey tracert=" + quotedExecutable + " run tracert $*",
-            "doskey nslookup=" + quotedExecutable + " run nslookup $*"
-        });
+        return string.Join(" & ", Aliases.Select(alias =>
+            "doskey " + alias.Key + "=" + quotedExecutable + " run " + alias.Value + " $*"));
     }
 
     private static int Run(string[] args)
     {
         if (args.Length == 0 || !IsSupportedCommand(args[0]))
         {
-            Console.Error.WriteLine("UrlCmd only runs ping, tracert, or nslookup.");
+            Console.Error.WriteLine("ACMD only runs supported Windows network commands.");
             return 1;
         }
 
         string command = args[0].ToLowerInvariant();
-        string[] normalized = args.Skip(1).Select(NormalizeArgument).ToArray();
-        string commandPath = Path.Combine(Environment.SystemDirectory, command + ".exe");
+        string[] normalized = TransformArguments(command, args.Skip(1).ToArray());
+        string commandPath = FindCommandPath(command);
 
         try
         {
@@ -138,20 +148,111 @@ internal static class UrlCmd
     {
         if (args.Length == 0 || !IsSupportedCommand(args[0]))
         {
-            Console.Error.WriteLine("Usage: UrlCmd.exe normalize <ping|tracert|nslookup> [arguments]");
+            Console.Error.WriteLine("Usage: acmd.exe normalize <command> [arguments]");
             return 1;
         }
 
         Console.WriteLine(args[0].ToLowerInvariant() + " " +
-            string.Join(" ", args.Skip(1).Select(NormalizeArgument).Select(QuoteForProcess)));
+            string.Join(" ", TransformArguments(args[0], args.Skip(1).ToArray()).Select(QuoteForProcess)));
         return 0;
     }
 
     private static bool IsSupportedCommand(string command)
     {
+        return Aliases.Values.Contains(command, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static string[] TransformArguments(string command, string[] arguments)
+    {
+        if (string.Equals(command, "ipconfig", StringComparison.OrdinalIgnoreCase)
+            && arguments.Length > 0
+            && (string.Equals(arguments[0], "-f", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(arguments[0], "/f", StringComparison.OrdinalIgnoreCase)))
+        {
+            return new[] { "/flushdns" }.Concat(arguments.Skip(1)).ToArray();
+        }
+
+        if (string.Equals(command, "route", StringComparison.OrdinalIgnoreCase)
+            && arguments.Length >= 2
+            && string.Equals(arguments[0], "p", StringComparison.OrdinalIgnoreCase)
+            && (arguments[1] == "4" || arguments[1] == "6"))
+        {
+            return new[] { "print", "-" + arguments[1] }.Concat(arguments.Skip(2)).ToArray();
+        }
+
+        if (ShouldNormalizeUrls(command))
+            return arguments.Select(NormalizeArgument).ToArray();
+
+        return arguments;
+    }
+
+    private static bool ShouldNormalizeUrls(string command)
+    {
         return string.Equals(command, "ping", StringComparison.OrdinalIgnoreCase)
             || string.Equals(command, "tracert", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(command, "nslookup", StringComparison.OrdinalIgnoreCase);
+            || string.Equals(command, "nslookup", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(command, "pathping", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string FindCommandPath(string command)
+    {
+        string filename = command + ".exe";
+        string systemPath = Path.Combine(Environment.SystemDirectory, filename);
+        if (File.Exists(systemPath))
+            return systemPath;
+
+        if (string.Equals(command, "ssh", StringComparison.OrdinalIgnoreCase))
+        {
+            string openSshPath = Path.Combine(Environment.SystemDirectory, "OpenSSH", filename);
+            if (File.Exists(openSshPath))
+                return openSshPath;
+        }
+
+        return filename;
+    }
+
+    private static string RemoveMacroGroup(string current, string marker)
+    {
+        int markerIndex = current.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (markerIndex < 0)
+            return current;
+
+        int segmentStart = current.LastIndexOf(" & ", markerIndex, StringComparison.Ordinal);
+        segmentStart = segmentStart < 0 ? 0 : segmentStart + 3;
+        int segmentEnd = current.IndexOf(" & ", markerIndex);
+        if (segmentEnd < 0)
+            segmentEnd = current.Length;
+
+        if (string.Equals(marker, MacroMarker, StringComparison.OrdinalIgnoreCase))
+        {
+            string executable = Process.GetCurrentProcess().MainModule.FileName;
+            string macro = BuildMacro(executable);
+            segmentEnd = markerIndex + macro.Length;
+        }
+
+        string updated = current.Remove(segmentStart, segmentEnd - segmentStart).Trim();
+        return updated.EndsWith("&", StringComparison.Ordinal)
+            ? updated.Substring(0, updated.Length - 1).TrimEnd()
+            : updated;
+    }
+
+    private static string RemoveLegacyMacroGroup(string current)
+    {
+        int start = current.IndexOf(LegacyMacroMarker, StringComparison.OrdinalIgnoreCase);
+        if (start < 0)
+            return current;
+
+        int lastMacro = current.IndexOf("doskey nslookup=", start, StringComparison.OrdinalIgnoreCase);
+        int end = lastMacro < 0 ? -1 : current.IndexOf(" & ", lastMacro);
+        if (end < 0)
+            end = current.Length;
+
+        int segmentStart = current.LastIndexOf(" & ", start, StringComparison.Ordinal);
+        segmentStart = segmentStart < 0 ? 0 : segmentStart + 3;
+        string updated = current.Remove(segmentStart, end - segmentStart).Trim();
+        return updated.EndsWith("&", StringComparison.Ordinal)
+            ? updated.Substring(0, updated.Length - 1).TrimEnd()
+            : updated;
     }
 
     private static string NormalizeArgument(string argument)
@@ -211,9 +312,9 @@ internal static class UrlCmd
 
     private static void PrintUsage()
     {
-        Console.WriteLine("UrlCmd - remove web URL paths before ping, tracert, and nslookup.");
-        Console.WriteLine("  UrlCmd.exe install");
-        Console.WriteLine("  UrlCmd.exe uninstall");
-        Console.WriteLine("  UrlCmd.exe normalize ping https://example.com/path");
+        Console.WriteLine("ACMD (Advanced CMD) - CMD network command shortcuts.");
+        Console.WriteLine("  acmd.exe install");
+        Console.WriteLine("  acmd.exe uninstall");
+        Console.WriteLine("  acmd.exe normalize ping https://example.com/path");
     }
 }
