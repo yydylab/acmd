@@ -15,7 +15,7 @@ nslookup https://abc.cn/dhihsihdi2992
 对应实际执行的命令是：
 
 ```cmd
-ping github.com
+ping xxx.com
 tracert 123.com
 nslookup abc.cn
 ```
