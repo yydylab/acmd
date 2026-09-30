@@ -59,7 +59,7 @@ n https://www.baidu.com
 
 ## 4. 命令简写汇总
 
-| 简写 | 实际命令 | 案例 | 拓展 |
+| 简写  | 实际命令 | 案例 | 拓展 |
 | --- | --- | --- | --- |
 | `p` | `ping` | `p www.baidu.com` | `p t baidu.com` -> `ping -t baidu.com`<br>`p https://github.com/user/repo` -> `ping github.com` |
 | `t` | `tracert` | `t www.baidu.com` | `t dw baidu.com` -> `tracert -d -w 1 baidu.com`<br>`t wd baidu.com` -> `tracert -w 1 -d baidu.com` |
