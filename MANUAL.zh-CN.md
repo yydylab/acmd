@@ -37,30 +37,27 @@ n https://abc.cn/1.html
    ```cmd
    start
    ```
+   
+## 3. 日常使用
 
-## 3. 版本与启动信息
-
-在 CMD 中执行以下命令可显示 ACMD 当前版本、版权和项目地址：
-
-```cmd
-acmd -v
-```
-
-执行 `acmd install` 后，每次新开 CMD 窗口都会在提示符前自动显示这组信息。
-
-## 4. 自动更新
-
-执行以下命令可比对本机版本和 GitHub 最新 Release：
+直接输入网址，不要使用 Markdown 反引号，或双引号：
 
 ```cmd
-acmd update
+p https://baidu.com
 ```
+<img width="506" height="308" alt="image" src="https://github.com/user-attachments/assets/1c5052db-455c-4de6-a754-2fcc9a63d82c" />
 
-检测到新版本时，ACMD 会下载并校验最新 `acmd.exe`，随后请求一次 UAC 管理员授权以
-替换程序。替换完成后会自动打开新的 CMD 窗口。程序安装在
-`C:\Windows\System32` 时，升级必须通过该 UAC 授权。
+```cmd
+t wd https://www.baidu.com
+```
+<img width="483" height="422" alt="image" src="https://github.com/user-attachments/assets/41a96cbd-6e24-4221-8e9f-99d5a63dfdae" />
 
-## 5. 命令简写
+```cmd
+n https://www.baidu.com
+```
+<img width="445" height="188" alt="image" src="https://github.com/user-attachments/assets/ccba66c0-fab8-4aff-a7f4-d7b76e08adcf" />
+
+## 4. 命令简写汇总
 
 | 简写 | 实际命令 | 案例 | 拓展 |
 | --- | --- | --- | --- |
@@ -86,26 +83,29 @@ acmd update
 `r <a|d> <目标地址> <CIDR 前缀> <网关>`。ACMD 会将合法 IPv4 前缀（`0` 至
 `32`）转换为 `route` 所需的子网掩码。
 
-## 6. 日常使用
+## 5. 版本与启动信息
 
-直接输入网址，不要使用 Markdown 反引号：
-
-```cmd
-p https://baidu.com
-```
-<img width="506" height="308" alt="image" src="https://github.com/user-attachments/assets/1c5052db-455c-4de6-a754-2fcc9a63d82c" />
+在 CMD 中执行以下命令可显示 ACMD 当前版本、版权和项目地址：
 
 ```cmd
-t wd https://www.baidu.com
+acmd -v
 ```
-<img width="483" height="422" alt="image" src="https://github.com/user-attachments/assets/41a96cbd-6e24-4221-8e9f-99d5a63dfdae" />
+
+执行 `acmd install` 后，每次新开 CMD 窗口都会在提示符前自动显示这组信息。
+
+## 6. 更新升级
+
+执行以下命令可比对本机版本和 GitHub 最新 Release：
 
 ```cmd
-n https://www.baidu.com
+acmd update
 ```
-<img width="445" height="188" alt="image" src="https://github.com/user-attachments/assets/ccba66c0-fab8-4aff-a7f4-d7b76e08adcf" />
 
-## 7. 卸载
+检测到新版本时，ACMD 会下载并校验最新 `acmd.exe`，随后请求一次 UAC 管理员授权以
+替换程序。替换完成后会自动打开新的 CMD 窗口。程序安装在
+`C:\Windows\System32` 时，升级必须通过该 UAC 授权。
+
+## 7. 卸载acmd
 
 任意cmd窗口执行：
 
@@ -115,7 +115,7 @@ acmd.exe uninstall
 
 然后重新打开 CMD。该操作只移除 ACMD 添加的宏。
 
-## 8. 构建与测试
+## 8. 构建与测试（开发者）
 
 在 Windows PowerShell 中运行：
 
