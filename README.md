@@ -67,7 +67,7 @@ n https://www.baidu.com
 ## 4. Command Shortcut Summary
 
 | Shortcut | Actual command | Example | Extension |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `p` | `ping` | `p www.baidu.com` | `p t baidu.com` -> `ping -t baidu.com`<br>`p https://github.com/user/repo` -> `ping github.com` |
 | `t` | `tracert` | `t www.baidu.com` | `t dw baidu.com` -> `tracert -d -w 1 baidu.com`<br>`t wd baidu.com` -> `tracert -w 1 -d baidu.com` |
 | `n` | `nslookup` | `n www.baidu.com` | `n https://example.com/path` -> `nslookup example.com` |
