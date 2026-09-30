@@ -7,7 +7,7 @@ ACMD 为 Windows CMD 提供常用命令简写，并让 `ping`、`tracert`、`nsl
 主机名，再调用 Windows 自带命令。
 
 ```cmd
-ping https://github.com/chrisant996/clink
+ping https://xxx.com/login
 tracert https://123.com/admin
 nslookup https://abc.cn/dhihsihdi2992
 ```
