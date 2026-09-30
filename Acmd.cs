@@ -39,7 +39,11 @@ internal static class Acmd
             { "cc", "curl-cip" },
             { "ci", "curl-ipinfo" },
             { "ia", "ipconfig-all" },
-            { "if", "ipconfig-flushdns" }
+            { "if", "ipconfig-flushdns" },
+            { "rp", "route-print" },
+            { "rp4", "route-print-4" },
+            { "rp6", "route-print-6" },
+            { "tp", "tcping" }
         };
 
     private static int Main(string[] args)
@@ -297,7 +301,10 @@ internal static class Acmd
         if (command.StartsWith("curl-", StringComparison.OrdinalIgnoreCase))
             return "curl";
 
-        return command.StartsWith("ipconfig-", StringComparison.OrdinalIgnoreCase) ? "ipconfig" : command;
+        if (command.StartsWith("ipconfig-", StringComparison.OrdinalIgnoreCase))
+            return "ipconfig";
+
+        return command.StartsWith("route-print", StringComparison.OrdinalIgnoreCase) ? "route" : command;
     }
 
     private static string[] TransformArguments(string command, string[] arguments)
@@ -313,6 +320,18 @@ internal static class Acmd
 
         if (string.Equals(command, "ipconfig-flushdns", StringComparison.OrdinalIgnoreCase))
             return new[] { "/flushdns" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "route-print", StringComparison.OrdinalIgnoreCase))
+            return new[] { "print" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "route-print-4", StringComparison.OrdinalIgnoreCase))
+            return new[] { "print", "-4" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "route-print-6", StringComparison.OrdinalIgnoreCase))
+            return new[] { "print", "-6" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "tcping", StringComparison.OrdinalIgnoreCase) && arguments.Length == 1)
+            return arguments.Concat(new[] { "22" }).ToArray();
 
         if (string.Equals(command, "ipconfig", StringComparison.OrdinalIgnoreCase) && arguments.Length > 0)
         {

@@ -72,6 +72,7 @@ n https://www.baidu.com
 | `f` | `ftp` | `f ftp.example.com` | 原生 `ftp` 参数可直接传入。 |
 | `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
 | `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
+| `tp` | `tcping` | `tp 192.168.1.200 3389` | `tp 192.168.1.200` -> `tcping 192.168.1.200 22`。<br>需先安装 [tcping.exe](https://github.com/pouriyajamshidi/tcping)，并确保它可通过 `PATH` 或 `System32` 找到。 |
 | `te` | `telnet` | `te 192.168.1.1 23` | 需先启用 Windows Telnet Client 可选功能。 |
 | `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
 | `ia` | `ipconfig /all` | `ia` | 快速显示所有网络适配器的完整配置信息。 |
@@ -79,6 +80,7 @@ n https://www.baidu.com
 | `g` | `getmac` | `g /v` | 原生 `getmac` 参数可直接传入。 |
 | `ne` | `netsh` | `ne interface ip show config` | 原生 `netsh` 上下文与参数可直接传入。 |
 | `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `rp` | `route print` | `rp` | `rp4` -> `route print -4`<br>`rp6` -> `route print -6` |
 | `nb` | `nbtstat` | `nb -n` | 原生 `nbtstat` 参数可直接传入。 |
 
 路由添加和删除的格式为

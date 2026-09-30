@@ -19,6 +19,9 @@ $cases = @(
     @{ Input = @('route', 'p'); Expected = 'route print' },
     @{ Input = @('route', 'p', '4'); Expected = 'route print -4' },
     @{ Input = @('route', 'p', '6'); Expected = 'route print -6' },
+    @{ Input = @('route-print'); Expected = 'route print' },
+    @{ Input = @('route-print-4'); Expected = 'route print -4' },
+    @{ Input = @('route-print-6'); Expected = 'route print -6' },
     @{ Input = @('route', 'a', '223.5.5.5', '32', '192.168.1.1'); Expected = 'route add 223.5.5.5 mask 255.255.255.255 192.168.1.1' },
     @{ Input = @('route', 'd', '10.0.0.0', '24', '192.168.1.1'); Expected = 'route delete 10.0.0.0 mask 255.255.255.0 192.168.1.1' },
     @{ Input = @('curl', 'c'); Expected = 'curl cip.cc' },
@@ -27,7 +30,9 @@ $cases = @(
     @{ Input = @('curl-ipinfo'); Expected = 'curl ipinfo.io' },
     @{ Input = @('curl', 'https://example.com/path'); Expected = 'curl https://example.com/path' },
     @{ Input = @('mstsc', '192.168.1.1'); Expected = 'mstsc /v:192.168.1.1:3389' },
-    @{ Input = @('mstsc', '192.168.1.1:53389'); Expected = 'mstsc /v:192.168.1.1:53389' }
+    @{ Input = @('mstsc', '192.168.1.1:53389'); Expected = 'mstsc /v:192.168.1.1:53389' },
+    @{ Input = @('tcping', '192.168.1.200', '3389'); Expected = 'tcping 192.168.1.200 3389' },
+    @{ Input = @('tcping', '192.168.1.200'); Expected = 'tcping 192.168.1.200 22' }
 )
 
 foreach ($case in $cases) {
@@ -39,7 +44,7 @@ foreach ($case in $cases) {
 }
 
 $banner = (& .\acmd.exe -v) -join "`n"
-foreach ($expected in @('acmd v0.1.6.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
+foreach ($expected in @('acmd v0.1.7.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
     if (-not $banner.Contains($expected)) {
         throw "Version banner does not contain '$expected'."
     }
@@ -53,7 +58,7 @@ $commandProcessorKey = 'HKCU:\Software\Microsoft\Command Processor'
 $beforeAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey -ErrorAction SilentlyContinue).AutoRun
 & .\acmd.exe install
 $installedAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey).AutoRun
-foreach ($macro in @('doskey cc=', 'doskey ci=', 'doskey ia=', 'doskey if=')) {
+foreach ($macro in @('doskey cc=', 'doskey ci=', 'doskey ia=', 'doskey if=', 'doskey rp=', 'doskey rp4=', 'doskey rp6=', 'doskey tp=')) {
     if ($installedAutoRun -notmatch [regex]::Escape($macro)) {
         throw "Install did not register $macro."
     }
@@ -63,4 +68,4 @@ $afterAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey -ErrorActio
 if ($afterAutoRun -cne $beforeAutoRun) {
     throw 'Uninstall did not restore the prior AutoRun setting.'
 }
-Write-Host "PASS cc/ci/ia/if macro install and uninstall"
+Write-Host "PASS extended shortcut macro install and uninstall"

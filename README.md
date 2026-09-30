@@ -79,6 +79,7 @@ n https://www.baidu.com
 | `f` | `ftp` | `f ftp.example.com` | Pass native `ftp` options directly. |
 | `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
 | `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
+| `tp` | `tcping` | `tp 192.168.1.200 3389` | `tp 192.168.1.200` -> `tcping 192.168.1.200 22`.<br>Requires [tcping.exe](https://github.com/pouriyajamshidi/tcping) to be installed and available in `PATH` or `System32`. |
 | `te` | `telnet` | `te 192.168.1.1 23` | Enable the Windows Telnet Client optional feature first. |
 | `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
 | `ia` | `ipconfig /all` | `ia` | Quickly show complete configuration details for all network adapters. |
@@ -86,6 +87,7 @@ n https://www.baidu.com
 | `g` | `getmac` | `g /v` | Pass native `getmac` options directly. |
 | `ne` | `netsh` | `ne interface ip show config` | Pass native `netsh` contexts and options directly. |
 | `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `rp` | `route print` | `rp` | `rp4` -> `route print -4`<br>`rp6` -> `route print -6` |
 | `nb` | `nbtstat` | `nb -n` | Pass native `nbtstat` options directly. |
 
 The route add/delete syntax is
