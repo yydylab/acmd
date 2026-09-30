@@ -3,7 +3,7 @@
 ## 1. 功能说明
 
 ACMD 为 Windows CMD 提供常用命令简写，并让 `ping`、`tracert`、`nslookup`、
-`pathping` 可直接接受 HTTP 或 HTTPS 网址。按下 Enter 后，程序仅提取网址中的
+`pathping` 等可直接接受 HTTP 或 HTTPS 网址。按下 Enter 后，程序仅提取网址中的
 主机名，再调用 Windows 自带命令。
 
 ```cmd
@@ -23,31 +23,18 @@ nslookup abc.cn
 ## 2. 安装
 
 1. 从项目的 Releases 页面下载 `acmd.exe`。
-2. 以管理员身份打开 CMD 或 PowerShell。
-3. 将文件复制到系统目录：
-
-   ```cmd
-   copy acmd.exe C:\Windows\System32\acmd.exe
-   ```
-
-   在 PowerShell 中可使用：
-
-   ```powershell
-   Copy-Item .\acmd.exe C:\Windows\System32\acmd.exe
-   ```
-
-4. 在任意 CMD 中执行：
+2. 将文件复制到系统目录 `C:\Windows\System32`。
+3. 在任意 CMD 中执行：
 
    ```cmd
    acmd.exe install
    ```
 
-5. 关闭当前 CMD，并重新打开一个 CMD 窗口。
+4. 待安装完成，并重新打开一个 CMD 窗口。
 
-安装仅写入当前用户的
-`HKCU\Software\Microsoft\Command Processor\AutoRun`。
-替换旧版 EXE 后，请再次执行 `acmd.exe install`；该命令会刷新启动横幅和全部
-简写宏。
+   ```cmd
+   start
+   ```
 
 ## 3. 版本与启动信息
 
@@ -102,26 +89,23 @@ acmd update
 直接输入网址，不要使用 Markdown 反引号：
 
 ```cmd
-ping https://example.com/login
+p https://baidu.com
 ```
-
-请使用上面的形式，而非：
+<img width="506" height="308" alt="image" src="https://github.com/user-attachments/assets/1c5052db-455c-4de6-a754-2fcc9a63d82c" />
 
 ```cmd
-ping `https://example.com/login`
+t wd https://www.baidu.com
 ```
-
-CMD 不将反引号视为引号字符，后者会导致 DNS 查询失败。
-
-带查询参数的网址包含 `&` 时请用英文双引号包住完整网址：
+<img width="483" height="422" alt="image" src="https://github.com/user-attachments/assets/41a96cbd-6e24-4221-8e9f-99d5a63dfdae" />
 
 ```cmd
-ping "https://example.com/path?a=1&b=2"
+n https://www.baidu.com
 ```
+<img width="445" height="188" alt="image" src="https://github.com/user-attachments/assets/ccba66c0-fab8-4aff-a7f4-d7b76e08adcf" />
 
 ## 7. 卸载
 
-执行：
+任意cmd窗口执行：
 
 ```cmd
 acmd.exe uninstall
