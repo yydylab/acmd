@@ -6,18 +6,20 @@ ACMD 为 Windows CMD 提供常用命令简写，并让 `ping`、`tracert`、`nsl
 `pathping` 等可直接接受 HTTP 或 HTTPS 网址。按下 Enter 后，程序仅提取网址中的
 主机名，再调用 Windows 自带命令。
 
-```cmd
-ping https://xxx.com/login
-tracert https://123.com/admin
-nslookup https://abc.cn/dhihsihdi2992
-```
-
-对应实际执行的命令是：
+常规cmd命令,只支持输入域名，不能带http协议
 
 ```cmd
 ping xxx.com
 tracert 123.com
 nslookup abc.cn
+```
+
+安装acmd之后，对应实际执行的命令如下：(支持直接将网址粘贴到cmd命令行中)
+
+```cmd
+p https://xxx.com/aaa/ccc/jsidaoijd
+t https://123.com/login
+n https://abc.cn/1.html
 ```
 
 ## 2. 安装
@@ -30,7 +32,7 @@ nslookup abc.cn
    acmd.exe install
    ```
 
-4. 待安装完成，并重新打开一个 CMD 窗口。
+4. 待安装完成，重新打开一个 CMD 窗口。
 
    ```cmd
    start
