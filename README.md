@@ -1,131 +1,150 @@
-# ACMD (Advanced CMD)
+# ACMD (Advanced CMD) User Guide
 
-[中文操作手册](MANUAL.zh-CN.md) | [Release 下载](../../releases)
+[中文操作手册](MANUAL.zh-CN.md) | [Download Releases](../../releases)
 
-`acmd.exe` adds practical Windows CMD shortcuts and lets `ping`, `tracert`,
-`nslookup`, and `pathping` accept an HTTP or HTTPS URL. Before those network
-commands run, it replaces the URL with its host name.
+## 1. Features
 
-Examples:
+ACMD provides shortcuts for common Windows CMD commands. It lets `ping`,
+`tracert`, `nslookup`, and `pathping` accept HTTP or HTTPS URLs directly.
+After you press Enter, ACMD extracts only the host name from the URL and then
+runs the Windows built-in command.
 
-```text
-ping https://xxx.com/login
-tracert https://123.com/admin
-nslookup https://abc.cn/dhihsihdi2992
-```
+Standard CMD commands support domain names only; they do not accept an HTTP URL:
 
-They execute as:
-
-```text
+```cmd
 ping xxx.com
 tracert 123.com
 nslookup abc.cn
 ```
 
-## Build
+After installing ACMD, the following commands run with URL host extraction.
+You can paste URLs directly into the CMD command line:
 
-Run the following from PowerShell in this directory:
+```cmd
+p https://xxx.com/aaa/ccc/jsidaoijd
+t https://123.com/login
+n https://abc.cn/1.html
+```
+
+## 2. Installation
+
+1. Download `acmd.exe` from the project's Releases page.
+2. Copy the file to `C:\Windows\System32`.
+3. Run the following command in any CMD window:
+
+   ```cmd
+   acmd.exe install
+   ```
+
+4. When installation is complete, open a new CMD window:
+
+   ```cmd
+   start
+   ```
+
+## 3. Everyday Use
+
+Enter URLs directly. Do not use Markdown backticks or double quotes:
+
+```cmd
+p https://baidu.com
+```
+
+<img width="506" height="308" alt="ACMD ping URL example" src="https://github.com/user-attachments/assets/1c5052db-455c-4de6-a754-2fcc9a63d82c" />
+
+```cmd
+t wd https://www.baidu.com
+```
+
+<img width="483" height="422" alt="ACMD tracert URL example" src="https://github.com/user-attachments/assets/41a96cbd-6e24-4221-8e9f-99d5a63dfdae" />
+
+```cmd
+n https://www.baidu.com
+```
+
+<img width="445" height="188" alt="ACMD nslookup URL example" src="https://github.com/user-attachments/assets/ccba66c0-fab8-4aff-a7f4-d7b76e08adcf" />
+
+## 4. Command Shortcut Summary
+
+| Shortcut | Actual command | Example | Extension |
+| --- | --- | --- |
+| `p` | `ping` | `p www.baidu.com` | `p t baidu.com` -> `ping -t baidu.com`<br>`p https://github.com/user/repo` -> `ping github.com` |
+| `t` | `tracert` | `t www.baidu.com` | `t dw baidu.com` -> `tracert -d -w 1 baidu.com`<br>`t wd baidu.com` -> `tracert -w 1 -d baidu.com` |
+| `n` | `nslookup` | `n www.baidu.com` | `n https://example.com/path` -> `nslookup example.com` |
+| `a` | `arp` | `a -a` | Pass native `arp` options directly. |
+| `s` | `ssh` | `s user@192.168.1.1` | For example: `s -p 2222 user@host`. |
+| `c` | `curl` | `c https://example.com` | `c c` -> `curl cip.cc`<br>`c i` -> `curl ipinfo.io` |
+| `cc` | `curl cip.cc` | `cc` | Quickly query IP and location information from `cip.cc`. |
+| `ci` | `curl ipinfo.io` | `ci` | Quickly query IP metadata from `ipinfo.io`. |
+| `f` | `ftp` | `f ftp.example.com` | Pass native `ftp` options directly. |
+| `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
+| `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
+| `te` | `telnet` | `te 192.168.1.1 23` | Enable the Windows Telnet Client optional feature first. |
+| `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
+| `ia` | `ipconfig /all` | `ia` | Quickly show complete configuration details for all network adapters. |
+| `if` | `ipconfig /flushdns` | `if` | Quickly clear the local DNS resolver cache. |
+| `g` | `getmac` | `g /v` | Pass native `getmac` options directly. |
+| `ne` | `netsh` | `ne interface ip show config` | Pass native `netsh` contexts and options directly. |
+| `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
+| `nb` | `nbtstat` | `nb -n` | Pass native `nbtstat` options directly. |
+
+The route add/delete syntax is
+`r <a|d> <destination> <CIDR prefix> <gateway>`. ACMD converts a valid IPv4
+prefix from `0` through `32` to the subnet mask required by `route`.
+
+## 5. Version And Startup Information
+
+Run this command in CMD to display the ACMD version, copyright, and project
+URL:
+
+```cmd
+acmd -v
+```
+
+After running `acmd install`, this information is displayed before the prompt
+in every newly opened CMD window.
+
+## 6. Updates
+
+Run this command to compare the local version with the latest GitHub Release:
+
+```cmd
+acmd update
+```
+
+When a newer version is available, ACMD downloads and validates the latest
+`acmd.exe`, then requests one UAC approval to replace the program. Once the
+replacement finishes, it opens a new CMD window automatically. Updating an
+ACMD installation in `C:\Windows\System32` requires that UAC approval.
+
+## 7. Uninstall ACMD
+
+Run this command in any CMD window:
+
+```cmd
+acmd.exe uninstall
+```
+
+Then open a new CMD window. This removes only macros added by ACMD.
+
+## 8. Build And Test (Developers)
+
+Run the following in Windows PowerShell:
 
 ```powershell
 .\build.ps1
 .\test.ps1
 ```
 
-The build uses the built-in .NET Framework 4 C# compiler and produces a single
-framework-dependent `acmd.exe`. No third-party dependency is used.
+The project uses the Windows built-in .NET Framework C# compiler and has no
+third-party dependencies.
 
-## Version And Startup Banner
+## 9. Notes
 
-Run the following command to show the installed ACMD version and project URL:
-
-```cmd
-acmd -v
-```
-
-After `acmd install`, every newly opened CMD window also displays this
-information before the prompt.
-
-## Update
-
-Run this command to compare the installed version with the latest GitHub
-Release:
-
-```cmd
-acmd update
-```
-
-When a newer `acmd.exe` is available, ACMD downloads and validates it, then
-requests one UAC approval to replace the executable. After the replacement, it
-opens a new CMD window automatically. The updater needs administrator approval
-when ACMD is installed in `C:\Windows\System32`.
-
-## Complete Shortcut Reference
-
-Open a **new** CMD window after installation, then use the following shortcuts.
-For `ping`, `tracert`, `nslookup`, and `pathping`, an HTTP/HTTPS URL is reduced
-to its host name automatically.
-
-| Shortcut | Actual command | Example | Extensions |
-| --- | --- | --- | --- |
-| `p` | `ping` | `p www.baidu.com` | `p t baidu.com` -> `ping -t baidu.com`<br>`p https://github.com/user/repo` -> `ping github.com` |
-| `t` | `tracert` | `t www.baidu.com` | `t dw baidu.com` -> `tracert -d -w 1 baidu.com`<br>`t wd baidu.com` -> `tracert -w 1 -d baidu.com` |
-| `n` | `nslookup` | `n www.baidu.com` | `n https://example.com/path` -> `nslookup example.com` |
-| `a` | `arp` | `a -a` | Pass any native `arp` option directly. |
-| `s` | `ssh` | `s user@192.168.1.1` | Pass SSH options directly, for example `s -p 2222 user@host`. |
-| `c` | `curl` | `c https://example.com` | `c c` -> `curl cip.cc`<br>`c i` -> `curl ipinfo.io` |
-| `cc` | `curl cip.cc` | `cc` | Shortcut for IP and location information from `cip.cc`. |
-| `ci` | `curl ipinfo.io` | `ci` | Shortcut for IP metadata from `ipinfo.io`. |
-| `f` | `ftp` | `f ftp.example.com` | Pass any native `ftp` option directly. |
-| `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
-| `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
-| `te` | `telnet` | `te 192.168.1.1 23` | Requires the Windows Telnet Client optional feature. |
-| `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
-| `g` | `getmac` | `g /v` | Pass any native `getmac` option directly. |
-| `ne` | `netsh` | `ne interface ip show config` | Pass any native `netsh` context and command directly. |
-| `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |
-| `nb` | `nbtstat` | `nb -n` | Pass any native `nbtstat` option directly. |
-
-Route add/delete uses the format `r <a|d> <destination> <CIDR prefix>
-<gateway>`. ACMD converts a valid IPv4 prefix from `0` through `32` into the
-corresponding `route` subnet mask.
-
-## Install
-
-1. Copy `acmd.exe` to `C:\Windows\System32\acmd.exe`.
-2. Open a CMD window and run `acmd.exe install`.
-3. Open a **new** CMD window.
-
-Run `acmd.exe install` again after replacing an older ACMD executable. It
-refreshes the startup banner and all shortcut macros.
-
-The installer preserves the current user's existing `CMD` AutoRun setting
-and appends ACMD `doskey` macros. It changes only
-`HKCU\Software\Microsoft\Command Processor\AutoRun`, so it does not require
-administrator rights and does not affect other users.
-
-Windows does not automatically run arbitrary EXE files merely because they are
-placed in `System32`; the one-time `install` command is required to enable the
-current user's CMD integration.
-
-To remove the integration:
-
-```text
-acmd.exe uninstall
-```
-
-## Release
-
-Download `acmd.exe` from the [Releases](../../releases) page, then follow the
-installation steps above. Version `0.1.4` refreshes startup configuration during
-installation and after automatic updates. Version `0.1.5` adds the direct
-`cc` and `ci` curl shortcuts while retaining `c c` and `c i`.
-
-## Scope and behavior
-
-- The listed shortcuts expand only in newly opened CMD windows after installation.
-- Only `ping`, `tracert`, `nslookup`, and `pathping` convert `http://` and
-  `https://` arguments; `c` keeps complete URLs for `curl`.
-- The host is extracted using the Windows .NET URI parser. Paths, queries,
-  fragments, credentials, and ports are not passed to the networking command.
-- The program calls the native executable from `System32` directly; it does not
-  invoke `cmd /c`, so URL text is never interpreted as shell syntax.
+- Only arguments that begin with `http://` or `https://` are converted.
+- `ping`, `tracert`, `nslookup`, and `pathping` extract the host name from an
+  HTTP/HTTPS URL. `c` (`curl`) preserves the full URL.
+- URL paths, query parameters, fragments, credentials, and ports are not
+  passed to network commands.
+- `acmd.exe` starts native commands from `System32` directly and does not use
+  `cmd /c`.

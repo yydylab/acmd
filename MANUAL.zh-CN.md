@@ -74,6 +74,8 @@ n https://www.baidu.com
 | `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
 | `te` | `telnet` | `te 192.168.1.1 23` | 需先启用 Windows Telnet Client 可选功能。 |
 | `i` | `ipconfig` | `i` | `i a` -> `ipconfig /all`<br>`i f` -> `ipconfig /flushdns` |
+| `ia` | `ipconfig /all` | `ia` | 快速显示所有网络适配器的完整配置信息。 |
+| `if` | `ipconfig /flushdns` | `if` | 快速清除本机 DNS 解析缓存。 |
 | `g` | `getmac` | `g /v` | 原生 `getmac` 参数可直接传入。 |
 | `ne` | `netsh` | `ne interface ip show config` | 原生 `netsh` 上下文与参数可直接传入。 |
 | `r` | `route` | `r p` -> `route print` | `r p 4` -> `route print -4`<br>`r p 6` -> `route print -6`<br>`r a 223.5.5.5 32 192.168.1.1` -> `route add 223.5.5.5 mask 255.255.255.255 192.168.1.1`<br>`r d 223.5.5.5 32 192.168.1.1` -> `route delete 223.5.5.5 mask 255.255.255.255 192.168.1.1` |

@@ -14,6 +14,8 @@ $cases = @(
     @{ Input = @('tracert', 'wd', 'https://example.com/admin'); Expected = 'tracert -w 1 -d example.com' },
     @{ Input = @('ipconfig', 'a'); Expected = 'ipconfig /all' },
     @{ Input = @('ipconfig', 'f'); Expected = 'ipconfig /flushdns' },
+    @{ Input = @('ipconfig-all'); Expected = 'ipconfig /all' },
+    @{ Input = @('ipconfig-flushdns'); Expected = 'ipconfig /flushdns' },
     @{ Input = @('route', 'p'); Expected = 'route print' },
     @{ Input = @('route', 'p', '4'); Expected = 'route print -4' },
     @{ Input = @('route', 'p', '6'); Expected = 'route print -6' },
@@ -37,7 +39,7 @@ foreach ($case in $cases) {
 }
 
 $banner = (& .\acmd.exe -v) -join "`n"
-foreach ($expected in @('acmd v0.1.5.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
+foreach ($expected in @('acmd v0.1.6.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
     if (-not $banner.Contains($expected)) {
         throw "Version banner does not contain '$expected'."
     }
@@ -47,10 +49,11 @@ Write-Host "PASS version banner"
 # Install/Uninstall must add and remove every current macro without changing
 # the user's existing CMD AutoRun entry (for example, Clink).
 $commandProcessorKey = 'HKCU:\Software\Microsoft\Command Processor'
+& .\acmd.exe uninstall | Out-Null
 $beforeAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey -ErrorAction SilentlyContinue).AutoRun
 & .\acmd.exe install
 $installedAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey).AutoRun
-foreach ($macro in @('doskey cc=', 'doskey ci=')) {
+foreach ($macro in @('doskey cc=', 'doskey ci=', 'doskey ia=', 'doskey if=')) {
     if ($installedAutoRun -notmatch [regex]::Escape($macro)) {
         throw "Install did not register $macro."
     }
@@ -60,4 +63,4 @@ $afterAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey -ErrorActio
 if ($afterAutoRun -cne $beforeAutoRun) {
     throw 'Uninstall did not restore the prior AutoRun setting.'
 }
-Write-Host "PASS cc/ci macro install and uninstall"
+Write-Host "PASS cc/ci/ia/if macro install and uninstall"

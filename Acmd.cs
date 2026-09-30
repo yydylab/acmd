@@ -37,7 +37,9 @@ internal static class Acmd
             { "r", "route" },
             { "nb", "nbtstat" },
             { "cc", "curl-cip" },
-            { "ci", "curl-ipinfo" }
+            { "ci", "curl-ipinfo" },
+            { "ia", "ipconfig-all" },
+            { "if", "ipconfig-flushdns" }
         };
 
     private static int Main(string[] args)
@@ -292,7 +294,10 @@ internal static class Acmd
 
     private static string GetNativeCommand(string command)
     {
-        return command.StartsWith("curl-", StringComparison.OrdinalIgnoreCase) ? "curl" : command;
+        if (command.StartsWith("curl-", StringComparison.OrdinalIgnoreCase))
+            return "curl";
+
+        return command.StartsWith("ipconfig-", StringComparison.OrdinalIgnoreCase) ? "ipconfig" : command;
     }
 
     private static string[] TransformArguments(string command, string[] arguments)
@@ -302,6 +307,12 @@ internal static class Acmd
 
         if (string.Equals(command, "curl-ipinfo", StringComparison.OrdinalIgnoreCase))
             return new[] { "ipinfo.io" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "ipconfig-all", StringComparison.OrdinalIgnoreCase))
+            return new[] { "/all" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "ipconfig-flushdns", StringComparison.OrdinalIgnoreCase))
+            return new[] { "/flushdns" }.Concat(arguments).ToArray();
 
         if (string.Equals(command, "ipconfig", StringComparison.OrdinalIgnoreCase) && arguments.Length > 0)
         {
@@ -459,12 +470,12 @@ internal static class Acmd
                 segmentStart = segmentStart < 0 ? 0 : segmentStart + 3;
             }
 
-            int lastMacro = current.IndexOf("doskey nb=", markerIndex, StringComparison.OrdinalIgnoreCase);
-            foreach (string alias in new[] { "cc", "ci" })
+            int lastMacro = -1;
+            foreach (string alias in Aliases.Keys)
             {
-                int optionalMacro = current.IndexOf("doskey " + alias + "=", markerIndex, StringComparison.OrdinalIgnoreCase);
-                if (optionalMacro > lastMacro)
-                    lastMacro = optionalMacro;
+                int macro = current.IndexOf("doskey " + alias + "=", markerIndex, StringComparison.OrdinalIgnoreCase);
+                if (macro > lastMacro)
+                    lastMacro = macro;
             }
             int segmentEnd = lastMacro < 0 ? -1 : current.IndexOf(" & ", lastMacro);
             if (segmentEnd < 0)
