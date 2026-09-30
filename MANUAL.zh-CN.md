@@ -81,6 +81,8 @@ acmd update
 | `a` | `arp` | `a -a` | 原生 `arp` 参数可直接传入。 |
 | `s` | `ssh` | `s user@192.168.1.1` | 例如：`s -p 2222 user@host`。 |
 | `c` | `curl` | `c https://example.com` | `c c` -> `curl cip.cc`<br>`c i` -> `curl ipinfo.io` |
+| `cc` | `curl cip.cc` | `cc` | 快速查询 `cip.cc` 的 IP 与归属地信息。 |
+| `ci` | `curl ipinfo.io` | `ci` | 快速查询 `ipinfo.io` 的 IP 元数据信息。 |
 | `f` | `ftp` | `f ftp.example.com` | 原生 `ftp` 参数可直接传入。 |
 | `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
 | `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |

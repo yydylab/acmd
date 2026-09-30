@@ -21,6 +21,8 @@ $cases = @(
     @{ Input = @('route', 'd', '10.0.0.0', '24', '192.168.1.1'); Expected = 'route delete 10.0.0.0 mask 255.255.255.0 192.168.1.1' },
     @{ Input = @('curl', 'c'); Expected = 'curl cip.cc' },
     @{ Input = @('curl', 'i'); Expected = 'curl ipinfo.io' },
+    @{ Input = @('curl-cip'); Expected = 'curl cip.cc' },
+    @{ Input = @('curl-ipinfo'); Expected = 'curl ipinfo.io' },
     @{ Input = @('curl', 'https://example.com/path'); Expected = 'curl https://example.com/path' },
     @{ Input = @('mstsc', '192.168.1.1'); Expected = 'mstsc /v:192.168.1.1:3389' },
     @{ Input = @('mstsc', '192.168.1.1:53389'); Expected = 'mstsc /v:192.168.1.1:53389' }
@@ -35,9 +37,27 @@ foreach ($case in $cases) {
 }
 
 $banner = (& .\acmd.exe -v) -join "`n"
-foreach ($expected in @('acmd v0.1.4.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
+foreach ($expected in @('acmd v0.1.5.0', 'Copyright (c) 2026 yydylab', 'https://github.com/yydylab/acmd')) {
     if (-not $banner.Contains($expected)) {
         throw "Version banner does not contain '$expected'."
     }
 }
 Write-Host "PASS version banner"
+
+# Install/Uninstall must add and remove every current macro without changing
+# the user's existing CMD AutoRun entry (for example, Clink).
+$commandProcessorKey = 'HKCU:\Software\Microsoft\Command Processor'
+$beforeAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey -ErrorAction SilentlyContinue).AutoRun
+& .\acmd.exe install
+$installedAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey).AutoRun
+foreach ($macro in @('doskey cc=', 'doskey ci=')) {
+    if ($installedAutoRun -notmatch [regex]::Escape($macro)) {
+        throw "Install did not register $macro."
+    }
+}
+& .\acmd.exe uninstall
+$afterAutoRun = [string](Get-ItemProperty -Path $commandProcessorKey -ErrorAction SilentlyContinue).AutoRun
+if ($afterAutoRun -cne $beforeAutoRun) {
+    throw 'Uninstall did not restore the prior AutoRun setting.'
+}
+Write-Host "PASS cc/ci macro install and uninstall"

@@ -35,7 +35,9 @@ internal static class Acmd
             { "g", "getmac" },
             { "ne", "netsh" },
             { "r", "route" },
-            { "nb", "nbtstat" }
+            { "nb", "nbtstat" },
+            { "cc", "curl-cip" },
+            { "ci", "curl-ipinfo" }
         };
 
     private static int Main(string[] args)
@@ -243,8 +245,9 @@ internal static class Acmd
         }
 
         string command = args[0].ToLowerInvariant();
+        string nativeCommand = GetNativeCommand(command);
         string[] normalized = TransformArguments(command, args.Skip(1).ToArray());
-        string commandPath = FindCommandPath(command);
+        string commandPath = FindCommandPath(nativeCommand);
 
         try
         {
@@ -276,8 +279,9 @@ internal static class Acmd
             return 1;
         }
 
-        Console.WriteLine(args[0].ToLowerInvariant() + " " +
-            string.Join(" ", TransformArguments(args[0], args.Skip(1).ToArray()).Select(QuoteForProcess)));
+        string command = args[0].ToLowerInvariant();
+        Console.WriteLine(GetNativeCommand(command) + " " +
+            string.Join(" ", TransformArguments(command, args.Skip(1).ToArray()).Select(QuoteForProcess)));
         return 0;
     }
 
@@ -286,8 +290,19 @@ internal static class Acmd
         return Aliases.Values.Contains(command, StringComparer.OrdinalIgnoreCase);
     }
 
+    private static string GetNativeCommand(string command)
+    {
+        return command.StartsWith("curl-", StringComparison.OrdinalIgnoreCase) ? "curl" : command;
+    }
+
     private static string[] TransformArguments(string command, string[] arguments)
     {
+        if (string.Equals(command, "curl-cip", StringComparison.OrdinalIgnoreCase))
+            return new[] { "cip.cc" }.Concat(arguments).ToArray();
+
+        if (string.Equals(command, "curl-ipinfo", StringComparison.OrdinalIgnoreCase))
+            return new[] { "ipinfo.io" }.Concat(arguments).ToArray();
+
         if (string.Equals(command, "ipconfig", StringComparison.OrdinalIgnoreCase) && arguments.Length > 0)
         {
             if (string.Equals(arguments[0], "a", StringComparison.OrdinalIgnoreCase))
@@ -445,6 +460,12 @@ internal static class Acmd
             }
 
             int lastMacro = current.IndexOf("doskey nb=", markerIndex, StringComparison.OrdinalIgnoreCase);
+            foreach (string alias in new[] { "cc", "ci" })
+            {
+                int optionalMacro = current.IndexOf("doskey " + alias + "=", markerIndex, StringComparison.OrdinalIgnoreCase);
+                if (optionalMacro > lastMacro)
+                    lastMacro = optionalMacro;
+            }
             int segmentEnd = lastMacro < 0 ? -1 : current.IndexOf(" & ", lastMacro);
             if (segmentEnd < 0)
                 segmentEnd = current.Length;

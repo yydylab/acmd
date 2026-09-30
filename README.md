@@ -73,6 +73,8 @@ to its host name automatically.
 | `a` | `arp` | `a -a` | Pass any native `arp` option directly. |
 | `s` | `ssh` | `s user@192.168.1.1` | Pass SSH options directly, for example `s -p 2222 user@host`. |
 | `c` | `curl` | `c https://example.com` | `c c` -> `curl cip.cc`<br>`c i` -> `curl ipinfo.io` |
+| `cc` | `curl cip.cc` | `cc` | Shortcut for IP and location information from `cip.cc`. |
+| `ci` | `curl ipinfo.io` | `ci` | Shortcut for IP metadata from `ipinfo.io`. |
 | `f` | `ftp` | `f ftp.example.com` | Pass any native `ftp` option directly. |
 | `m` | `mstsc` | `m 192.168.1.1` | `m 192.168.1.1` -> `mstsc /v:192.168.1.1:3389`<br>`m 192.168.1.1:53389` -> `mstsc /v:192.168.1.1:53389` |
 | `pa` | `pathping` | `pa www.baidu.com` | `pa https://example.com/path` -> `pathping example.com` |
@@ -97,7 +99,7 @@ Run `acmd.exe install` again after replacing an older ACMD executable. It
 refreshes the startup banner and all shortcut macros.
 
 The installer preserves the current user's existing `CMD` AutoRun setting
- and appends three `doskey` macros. It changes only
+and appends ACMD `doskey` macros. It changes only
 `HKCU\Software\Microsoft\Command Processor\AutoRun`, so it does not require
 administrator rights and does not affect other users.
 
@@ -115,7 +117,8 @@ acmd.exe uninstall
 
 Download `acmd.exe` from the [Releases](../../releases) page, then follow the
 installation steps above. Version `0.1.4` refreshes startup configuration during
-installation and after automatic updates.
+installation and after automatic updates. Version `0.1.5` adds the direct
+`cc` and `ci` curl shortcuts while retaining `c c` and `c i`.
 
 ## Scope and behavior
 
